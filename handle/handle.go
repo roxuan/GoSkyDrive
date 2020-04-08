@@ -2,8 +2,8 @@ package handle
 
 import(
 	"encoding/json"
-	"filestore-serve/meta"
-	"filestore-serve/util"
+	"filestore-server/meta"
+	"filestore-server/util"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -68,7 +68,13 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request){
 	r.ParseForm()
 
 	filehash := r.Form["filehash"][0]
-	fMeta := meta.GetFileMeta(filehash)
+	//fMeta := meta.GetFileMeta(filehash)
+	fMeta,err := meta.GetFileMetaDb(filehash)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	data, err := json.Marshal(fMeta)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

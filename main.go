@@ -1,7 +1,7 @@
 package main
 
 import (
-	"filestore-serve/handle"
+	"filestore-server/handle"
 	"fmt"
 	"net/http"
 )

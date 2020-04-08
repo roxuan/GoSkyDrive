@@ -1,4 +1,4 @@
-module filestore-serve
+module filestore-server
 
 go 1.14
 
