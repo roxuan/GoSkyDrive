@@ -13,6 +13,9 @@ func main(){
 	http.HandleFunc("/file/download",handle.DownloadHandler)
 	http.HandleFunc("/file/update",handle.FileMetaUpdateHandle)
 	http.HandleFunc("/file/delete",handle.FileDeleteHandle)
+
+	http.HandleFunc("/user/signup",handle.SignupHandler)
+
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil{
 		fmt.Printf("Failed to start , err:%s",err.Error())
