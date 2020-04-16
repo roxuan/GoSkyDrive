@@ -16,6 +16,10 @@ func main(){
 
 	http.HandleFunc("/user/signup",handle.SignupHandler)
 	http.HandleFunc("/user/signin",handle.SignInHandler)
+	http.HandleFunc("/user/info",handle.UserInfoHandler)
+
+	http.Handle("/static/",
+		http.StripPrefix("/static/",http.FileServer(http.Dir("./static"))))
 	err := http.ListenAndServe(":8000", nil)
 	if err != nil{
 		fmt.Printf("Failed to start , err:%s",err.Error())
