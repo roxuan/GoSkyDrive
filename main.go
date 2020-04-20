@@ -16,7 +16,7 @@ func main(){
 
 	http.HandleFunc("/user/signup",handle.SignupHandler)
 	http.HandleFunc("/user/signin",handle.SignInHandler)
-	http.HandleFunc("/user/info",handle.UserInfoHandler)
+	http.HandleFunc("/user/info",handle.HTTPInterceptor(handle.UserInfoHandler))
 
 	http.Handle("/static/",
 		http.StripPrefix("/static/",http.FileServer(http.Dir("./static"))))
