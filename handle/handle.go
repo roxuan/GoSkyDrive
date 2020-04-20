@@ -2,8 +2,12 @@ package handle
 
 import(
 	"encoding/json"
+	dblayer "filestore-server/db"
 	"filestore-server/meta"
 	"filestore-server/util"
+	"strconv"
+
+	//dblayer "filestore-server/db"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -53,6 +57,16 @@ func UploadHandler(w http.ResponseWriter, r * http.Request){
 		//meta.UpdateFileMeta(fileMeta)
 		_=meta.UpdateFileMetaDb(fileMeta)
 
+		// TODO:更新用户文件表记录
+		r.ParseForm()
+		username := r.Form.Get("username")
+		suc := dblayer.OnUserFileUploadFinished(username,fileMeta.FileSha1,fileMeta.FileName,fileMeta.FileSize)
+		if suc{
+			http.Redirect(w,r,"/static/view/home.html",http.StatusFound)
+		}else{
+			w.Write([]byte("Upload Failded."))
+		}
+
 		http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
 	}
 
@@ -76,6 +90,25 @@ func GetFileMetaHandler(w http.ResponseWriter, r *http.Request){
 	}
 
 	data, err := json.Marshal(fMeta)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
+}
+
+func FileQueryHandler(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+
+	limitCnt,_ :=strconv.Atoi(r.Form.Get("limit"))
+	username := r.Form.Get("username")
+
+	userFiles,err:=dblayer.QueryUserFileMetas(username,limitCnt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	data,err:=json.Marshal(userFiles)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
