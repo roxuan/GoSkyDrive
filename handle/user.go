@@ -9,8 +9,9 @@ import(
 	"time"
 )
 
-const(
-	pwd_salt = "*#890"
+const (
+	// 用于加密的盐值(自定义)
+	pwdSalt = "*#890"
 )
 
 // 处理用户注册请求
@@ -34,11 +35,13 @@ func SignupHandler(w http.ResponseWriter,r *http.Request){
 		return
 	}
 
-	enc_passwd:= util.Sha1([]byte(passwd+pwd_salt))
-	suc:= dblayer.UserSignup(username,enc_passwd)
-	if suc{
+	// 对密码进行加盐及取Sha1值加密
+	encPasswd := util.Sha1([]byte(passwd + pwdSalt))
+	// 将用户信息注册到用户表中
+	suc := dblayer.UserSignup(username, encPasswd)
+	if suc {
 		w.Write([]byte("SUCCESS"))
-	}else{
+	} else {
 		w.Write([]byte("FAILED"))
 	}
 }
@@ -57,12 +60,12 @@ func SignInHandler(w http.ResponseWriter,r *http.Request) {
 	r.ParseForm()
 	username:=r.Form.Get("username")
 	password:=r.Form.Get("password")
-	encPasswd:=util.Sha1([]byte(password+pwd_salt))
+	encPasswd := util.Sha1([]byte(password + pwdSalt))
 
 	// 1.检验用户名和密码
-	pwdChecked:=dblayer.UserSignIn(username,encPasswd)
+	pwdChecked := dblayer.UserSignIn(username, encPasswd)
 
-	if !pwdChecked{
+	if !pwdChecked {
 		w.Write([]byte("FAILED1"))
 		return
 	}
@@ -70,7 +73,7 @@ func SignInHandler(w http.ResponseWriter,r *http.Request) {
 	// 2.生成访问凭证(token)
 	token:=GenToken(username)
 	upRes := dblayer.UpdateToken(username,token)
-	if!upRes{
+	if !upRes {
 		w.Write([]byte("FAILED2"))
 		return
 	}
@@ -122,12 +125,12 @@ func UserInfoHandler(w http.ResponseWriter,r *http.Request){
 	w.Write(resp.JSONBytes())
 }
 
-// 生成token
-func GenToken(username string) string{
+// GenToken : 生成token
+func GenToken(username string) string {
 	// 40位字符:md5(username+timestamp+token_salt)+timestamp[:8]
-	ts:=fmt.Sprintf("%s",time.Now().Unix())
-	tokenPrefix:=util.MD5([]byte(username+ts+"_tokensalt"))
-	return tokenPrefix+ts[:8]
+	ts := fmt.Sprintf("%x", time.Now().Unix())
+	tokenPrefix := util.MD5([]byte(username + ts + "_tokensalt"))
+	return tokenPrefix + ts[:8]
 }
 
 // token是否有效

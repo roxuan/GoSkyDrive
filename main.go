@@ -14,6 +14,7 @@ func main(){
 	http.HandleFunc("/file/update",handle.FileMetaUpdateHandle)
 	http.HandleFunc("/file/delete",handle.FileDeleteHandle)
 	http.HandleFunc("/file/query",handle.FileQueryHandler)
+	http.HandleFunc("/file/fastupload",handle.TryFastUploadHandle)
 
 	http.HandleFunc("/user/signup",handle.SignupHandler)
 	http.HandleFunc("/user/signin",handle.SignInHandler)
